@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spring Boot API Tester</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      background: #0f172a;
+      color: white;
+      padding: 0 20px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .topbar h1 { font-size: 17px; font-weight: 700; letter-spacing: 0.3px; white-space: nowrap; }
+    .topbar .subtitle { font-size: 12px; color: #64748b; margin-left: auto; white-space: nowrap; }
+
+    .server-url-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      padding: 5px 10px;
+    }
+    .server-url-wrap label { font-size: 11px; color: #64748b; white-space: nowrap; }
+    #serverUrl {
+      background: transparent;
+      border: none;
+      color: #34d399;
+      font-size: 13px;
+      font-family: 'Courier New', monospace;
+      width: 210px;
+      outline: none;
+    }
+
+    /* ── LAYOUT ── */
+    .layout { display: flex; flex: 1; overflow: hidden; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 270px;
+      flex-shrink: 0;
+      background: #fff;
+      border-right: 1px solid #e2e8f0;
+      overflow-y: auto;
+      padding: 8px 0 16px;
+    }
+    .group-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      padding: 14px 14px 6px;
+    }
+    .ep-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .ep-item:hover { background: #f8fafc; }
+    .ep-item.active { background: #eff6ff; border-left-color: #3b82f6; }
+    .ep-item .ep-label { font-size: 12.5px; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ── METHOD BADGES ── */
+    .badge {
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 2px 5px;
+      border-radius: 4px;
+      min-width: 48px;
+      text-align: center;
+      flex-shrink: 0;
+      letter-spacing: 0.4px;
+    }
+    .badge-GET    { background: #dcfce7; color: #15803d; }
+    .badge-POST   { background: #dbeafe; color: #1d4ed8; }
+    .badge-PUT    { background: #ffedd5; color: #c2410c; }
+    .badge-PATCH  { background: #f3e8ff; color: #7c3aed; }
+    .badge-DELETE { background: #fee2e2; color: #b91c1c; }
+
+    .badge-lg { font-size: 12px; padding: 3px 10px; border-radius: 5px; }
+
+    /* ── MAIN PANEL ── */
+    .main { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+
+    .welcome { display: flex; align-items: center; justify-content: center; flex: 1; text-align: center; }
+    .welcome-inner h2 { font-size: 20px; color: #64748b; margin-bottom: 8px; }
+    .welcome-inner p { font-size: 13px; color: #94a3b8; }
+
+    /* ── CARD ── */
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .endpoint-path { font-family: 'Courier New', monospace; font-size: 14px; color: #1e293b; font-weight: 600; }
+    .endpoint-desc { font-size: 12.5px; color: #64748b; flex: 1; min-width: 200px; }
+    .card-body { padding: 18px; }
+
+    /* ── FORM ── */
+    .form-section { margin-bottom: 18px; }
+    .form-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .form-hint { font-size: 11.5px; color: #94a3b8; margin-bottom: 10px; font-style: italic; }
+
+    .form-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+    .form-row label { font-size: 12.5px; font-weight: 600; color: #374151; width: 145px; flex-shrink: 0; }
+    .required-star { color: #ef4444; }
+    .form-row input[type="text"] {
+      flex: 1;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 13px;
+      color: #1e293b;
+      outline: none;
+      font-family: 'Courier New', monospace;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .form-row input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+    .param-hint { font-size: 11px; color: #94a3b8; flex-shrink: 0; font-style: italic; }
+
+    textarea.body-input {
+      width: 100%;
+      min-height: 130px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 12.5px;
+      color: #1e293b;
+      resize: vertical;
+      outline: none;
+      line-height: 1.55;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    textarea.body-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+
+    /* ── SEND BUTTON ── */
+    .send-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 22px;
+      border: none;
+      border-radius: 7px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      color: white;
+    }
+    .send-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .send-btn:active { transform: translateY(0); }
+    .send-btn.loading { opacity: 0.65; cursor: not-allowed; transform: none; }
+    .btn-GET    { background: #16a34a; }
+    .btn-POST   { background: #2563eb; }
+    .btn-PUT    { background: #ea580c; }
+    .btn-PATCH  { background: #7c3aed; }
+    .btn-DELETE { background: #dc2626; }
+
+    /* ── RESPONSE ── */
+    .response-card { display: none; }
+    .response-card.visible { display: block; }
+
+    .response-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      border-bottom: 1px solid #f1f5f9;
+      flex-wrap: wrap;
+    }
+    .status-badge { font-size: 12.5px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+    .status-2xx { background: #dcfce7; color: #166534; }
+    .status-3xx { background: #fef3c7; color: #92400e; }
+    .status-4xx { background: #fee2e2; color: #991b1b; }
+    .status-5xx { background: #fee2e2; color: #991b1b; }
+    .response-time { font-size: 12px; color: #94a3b8; }
+    .response-url { font-size: 11.5px; color: #94a3b8; font-family: 'Courier New', monospace; margin-left: auto; word-break: break-all; }
+
+    .response-body-wrap { padding: 14px 18px; background: #0f172a; overflow-x: auto; }
+    pre.response-body { font-family: 'Courier New', monospace; font-size: 12.5px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+
+    /* ── JSON SYNTAX HIGHLIGHT ── */
+    .json-key    { color: #7dd3fc; }
+    .json-string { color: #86efac; }
+    .json-number { color: #fbbf24; }
+    .json-bool   { color: #f472b6; }
+    .json-null   { color: #94a3b8; }
+    .json-plain  { color: #e2e8f0; }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>&#128640; Spring Boot API Tester</h1>
+  <div class="server-url-wrap">
+    <label>Server:</label>
+    <input type="text" id="serverUrl" value="http://localhost:8080">
+  </div>
+  <span class="subtitle">Spring Boot API Tutorial &mdash; Interactive Test Console</span>
+</div>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar"></nav>
+  <main class="main" id="main">
+    <div class="welcome">
+      <div class="welcome-inner">
+        <h2>&#128072; Select an endpoint from the sidebar</h2>
+        <p>Fill in any parameters and click <strong>Send</strong> to make a real HTTP request.<br>
+        No Postman or curl needed &mdash; everything runs in the browser.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ======================================================================
+// ENDPOINT DEFINITIONS
+// Each endpoint has:
+//   group       - sidebar group name
+//   method      - HTTP method
+//   path        - URL template (use {varName} for path parameters)
+//   label       - short display name shown in the sidebar
+//   description - one-sentence explanation shown in the form header
+//   pathParams  - [ { name, placeholder, hint } ]
+//   queryParams - [ { name, required, placeholder, defaultValue } ]
+//   headers     - [ { name, placeholder, defaultValue } ]
+//   body        - { example, description } or null
+// ======================================================================
+const ENDPOINTS = [
+
+  // ────────────────────────────────────────────────────────────────────
+  // BASIC ENDPOINTS
+  // ────────────────────────────────────────────────────────────────────
+  {
+    id: 'basic-hello',
+    group: 'Basic',
+    method: 'GET',
+    path: '/api/basic/hello',
+    label: 'Hello World',
+    description: 'The simplest endpoint — returns a plain text welcome message.',
+    pathParams: [], queryParams: [], headers: [], body: null
+  },
+  {
+    id: 'basic-info',
+    group: 'Basic',
+    method: 'GET',
+    path: '/api/basic/info',
+    label: 'App Info',
+    description: 'Returns app name, version, timestamp and useful URLs as a JSON object.',
+    pathParams: [], queryParams: [], headers: [], body: null
+  },
+  {
+    id: 'basic-fruits',
+    group: 'Basic',
+    method: 'GET',
+    path: '/api/basic/fruits',
+    label: 'Fruit List (array)',
+    description: 'Returns a JSON array — shows how Spring serializes a Java List.',
+    pathParams: [], queryParams: [], headers: [], body: null
+  },
+  {
+    id: 'basic-greet',
+    group: 'Basic',
+    method: 'GET',
+    path: '/api/basic/hello/{name}',
+    label: 'Greet by Name',
+    description: 'Uses @PathVariable — {name} in the URL is replaced by your input.',
+    pathParams: [ { name: 'name', placeholder: 'e.g. Alice', hint: 'Any name' } ],
+    queryParams: [], headers: [], body: null
+  },
+  {
+    id: 'basic-user-order',
+    group: 'Basic',
+    method: 'GET',
+    path: '/api/basic/users/{userId}/orders/{orderId}',
+    label: 'User Order (2 path vars)',
+    description: 'Two @PathVariable parameters embedded in a single URL.',
+    pathParams: [
+      { name: 'userId',  placeholder: 'e.g. 42', hint: 'User ID'  },
+      { name: 'orderId', placeholder: 'e.g. 7',  hint: 'Order ID' }
+    ],
+    queryParams: [], headers: [], body: null
+  },
+  {
+    id: 'basic-search',
+    group: 'Basic',
+    method: 'GET',
+    path: '/api/basic/search',
+    label: 'Search (query params)',
+    description: 'Uses @RequestParam — parameters appear after ? in the URL.',
+    pathParams: [],
+    queryParams: [
+      { name: 'keyword', required: true,  placeholder: 'e.g. spring', defaultValue: '' },
+      { name: 'limit',   required: false, placeholder: 'e.g. 10',     defaultValue: '10' }
+    ],
+    headers: [], body: null
+  },
+  {
+    id: 'basic-products',
+    group: 'Basic',
+    method: 'GET',
+    path: '/api/basic/products/{category}',
+    label: 'Products (path + query)',
+    description: 'Mixes @PathVariable and @RequestParam — common in real-world APIs.',
+    pathParams: [ { name: 'category', placeholder: 'e.g. electronics', hint: 'Category name' } ],
+    queryParams: [
+      { name: 'sort',  required: false, placeholder: 'e.g. price', defaultValue: 'name' },
+      { name: 'limit', required: false, placeholder: 'e.g. 5',     defaultValue: '10'   }
+    ],
+    headers: [], body: null
+  },
+  {
+    id: 'basic-echo',
+    group: 'Basic',
+    method: 'POST',
+    path: '/api/basic/echo',
+    label: 'Echo Body (POST)',
+    description: 'Uses @RequestBody — Spring reads the JSON you send and echoes it back.',
+    pathParams: [], queryParams: [], headers: [],
+    body: {
+      example: '{\n  "message": "Hello Spring Boot",\n  "from": "Alice"\n}',
+      description: 'Any JSON object — it will be echoed back with extra fields added.'
+    }
+  },
+  {
+    id: 'basic-demo',
+    group: 'Basic',
+    method: 'GET',
+    path: '/api/basic/demo/{code}',
+    label: 'HTTP Status Demo',
+    description: 'Uses ResponseEntity to return different status codes. Try: 200, 201, 204, 400, 404, 409, 500.',
+    pathParams: [ { name: 'code', placeholder: '200 / 201 / 204 / 400 / 404 / 409 / 500', hint: 'Status code to demo' } ],
+    queryParams: [], headers: [], body: null
+  },
+  {
+    id: 'basic-create-item',
+    group: 'Basic',
+    method: 'POST',
+    path: '/api/basic/items',
+    label: 'Create Item (201 Created)',
+    description: 'Best practice: creating a resource should return HTTP 201, not 200.',
+    pathParams: [], queryParams: [], headers: [],
+    body: {
+      example: '{\n  "name": "Laptop",\n  "price": 999.99\n}',
+      description: 'Item data — the server adds a fake ID and createdAt timestamp.'
+    }
+  },
+  {
+    id: 'basic-put-item',
+    group: 'Basic',
+    method: 'PUT',
+    path: '/api/basic/items/{id}',
+    label: 'Update Item (PUT)',
+    description: 'PUT = full replacement. Send all fields even if only one changed.',
+    pathParams: [ { name: 'id', placeholder: 'e.g. 1', hint: 'Item ID' } ],
+    queryParams: [], headers: [],
+    body: {
+      example: '{\n  "name": "Updated Laptop",\n  "price": 1199.99\n}',
+      description: 'Full replacement — include all fields.'
+    }
+  },
+  {
+    id: 'basic-patch-item',
+    group: 'Basic',
+    method: 'PATCH',
+    path: '/api/basic/items/{id}',
+    label: 'Partial Update (PATCH)',
+    description: 'PATCH = partial update. Only send the fields you want to change.',
+    pathParams: [ { name: 'id', placeholder: 'e.g. 1', hint: 'Item ID' } ],
+    queryParams: [], headers: [],
+    body: {
+      example: '{\n  "price": 899.99\n}',
+      description: 'Only the fields to change — others stay untouched.'
+    }
+  },
+  {
+    id: 'basic-delete-item',
+    group: 'Basic',
+    method: 'DELETE',
+    path: '/api/basic/items/{id}',
+    label: 'Delete Item',
+    description: 'DELETE returns 204 No Content — a successful deletion has no response body.',
+    pathParams: [ { name: 'id', placeholder: 'e.g. 1', hint: 'Item ID to delete' } ],
+    queryParams: [], headers: [], body: null
+  },
+  {
+    id: 'basic-headers',
+    group: 'Basic',
+    method: 'GET',
+    path: '/api/basic/headers',
+    label: 'Read Request Headers',
+    description: 'Uses @RequestHeader — reads custom HTTP headers from the incoming request.',
+    pathParams: [], queryParams: [],
+    headers: [
+      { name: 'X-API-Key',       placeholder: 'e.g. myKey123', defaultValue: 'myKey123' },
+      { name: 'Accept-Language', placeholder: 'e.g. en-US',    defaultValue: 'en-US'    }
+    ],
+    body: null
+  },
+
+  // ────────────────────────────────────────────────────────────────────
+  // STUDENT ENDPOINTS
+  // ────────────────────────────────────────────────────────────────────
+  {
+    id: 'students-all',
+    group: 'Students',
+    method: 'GET',
+    path: '/api/students',
+    label: 'Get All Students',
+    description: 'Returns the full list of students from the H2 in-memory database.',
+    pathParams: [], queryParams: [], headers: [], body: null
+  },
+  {
+    id: 'students-by-id',
+    group: 'Students',
+    method: 'GET',
+    path: '/api/students/{id}',
+    label: 'Get Student by ID',
+    description: 'Returns one student. IDs 1–7 are pre-loaded. Returns 404 if not found.',
+    pathParams: [ { name: 'id', placeholder: 'e.g. 1', hint: 'IDs 1–7 are seeded' } ],
+    queryParams: [], headers: [], body: null
+  },
+  {
+    id: 'students-search',
+    group: 'Students',
+    method: 'GET',
+    path: '/api/students/search',
+    label: 'Search by Name',
+    description: 'Case-insensitive partial match on the student\'s name.',
+    pathParams: [],
+    queryParams: [ { name: 'name', required: true, placeholder: 'e.g. alice', defaultValue: '' } ],
+    headers: [], body: null
+  },
+  {
+    id: 'students-by-course',
+    group: 'Students',
+    method: 'GET',
+    path: '/api/students/course/{name}',
+    label: 'Filter by Course',
+    description: 'Returns all students enrolled in the given course.',
+    pathParams: [ { name: 'name', placeholder: 'e.g. Computer Science', hint: 'Course name' } ],
+    queryParams: [], headers: [], body: null
+  },
+  {
+    id: 'students-course-search',
+    group: 'Students',
+    method: 'GET',
+    path: '/api/students/course/{name}/search',
+    label: 'Search Within Course',
+    description: 'Searches by student name within a specific course — combines path + query param.',
+    pathParams: [ { name: 'name', placeholder: 'e.g. Computer Science', hint: 'Course name' } ],
+    queryParams: [ { name: 'name', required: true, placeholder: 'e.g. eve', defaultValue: '' } ],
+    headers: [], body: null
+  },
+  {
+    id: 'students-page',
+    group: 'Students',
+    method: 'GET',
+    path: '/api/students/page',
+    label: 'Paginated List',
+    description: 'Returns one page of students. Pagination prevents loading all records at once.',
+    pathParams: [],
+    queryParams: [
+      { name: 'page', required: false, placeholder: 'Page number (0-based)', defaultValue: '0' },
+      { name: 'size', required: false, placeholder: 'Results per page',      defaultValue: '3' }
+    ],
+    headers: [], body: null
+  },
+  {
+    id: 'students-stats',
+    group: 'Students',
+    method: 'GET',
+    path: '/api/students/stats',
+    label: 'Statistics',
+    description: 'Aggregated stats — total students, count per course, average grade, etc.',
+    pathParams: [], queryParams: [], headers: [], body: null
+  },
+  {
+    id: 'students-create',
+    group: 'Students',
+    method: 'POST',
+    path: '/api/students',
+    label: 'Create Student',
+    description: 'Creates a new student. Validates all fields — email must be unique.',
+    pathParams: [], queryParams: [], headers: [],
+    body: {
+      example: '{\n  "name": "Jane Doe",\n  "email": "jane@example.com",\n  "course": "Computer Science",\n  "grade": "A"\n}',
+      description: 'All fields required. Duplicate email returns HTTP 409 Conflict.'
+    }
+  },
+  {
+    id: 'students-update',
+    group: 'Students',
+    method: 'PUT',
+    path: '/api/students/{id}',
+    label: 'Update Student',
+    description: 'Fully replaces a student record by ID.',
+    pathParams: [ { name: 'id', placeholder: 'e.g. 1', hint: 'Student ID to update' } ],
+    queryParams: [], headers: [],
+    body: {
+      example: '{\n  "name": "Alice Updated",\n  "email": "alice.updated@example.com",\n  "course": "Data Science",\n  "grade": "A+"\n}',
+      description: 'All fields required for a full update.'
+    }
+  },
+  {
+    id: 'students-delete',
+    group: 'Students',
+    method: 'DELETE',
+    path: '/api/students/{id}',
+    label: 'Delete Student',
+    description: 'Deletes a student by ID. Returns 204 No Content on success.',
+    pathParams: [ { name: 'id', placeholder: 'e.g. 7', hint: 'Student ID to delete' } ],
+    queryParams: [], headers: [], body: null
+  }
+];
+
+// ======================================================================
+// BUILD SIDEBAR
+// ======================================================================
+function buildSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const groups  = [...new Set(ENDPOINTS.map(e => e.group))];
+
+  groups.forEach(group => {
+    const lbl = document.createElement('div');
+    lbl.className   = 'group-label';
+    lbl.textContent = group + ' Endpoints';
+    sidebar.appendChild(lbl);
+
+    ENDPOINTS.filter(e => e.group === group).forEach(ep => {
+      const item = document.createElement('div');
+      item.className    = 'ep-item';
+      item.dataset.id   = ep.id;
+      item.innerHTML    = `<span class="badge badge-${ep.method}">${ep.method}</span>
+                           <span class="ep-label">${ep.label}</span>`;
+      item.addEventListener('click', () => selectEndpoint(ep.id));
+      sidebar.appendChild(item);
+    });
+  });
+}
+
+// ======================================================================
+// RENDER ENDPOINT FORM
+// ======================================================================
+let currentEndpoint = null;
+
+function selectEndpoint(id) {
+  currentEndpoint = ENDPOINTS.find(e => e.id === id);
+  if (!currentEndpoint) return;
+
+  document.querySelectorAll('.ep-item').forEach(el =>
+    el.classList.toggle('active', el.dataset.id === id));
+
+  const ep   = currentEndpoint;
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+
+  // ── Request card ──
+  const reqCard = document.createElement('div');
+  reqCard.className = 'card';
+  reqCard.innerHTML = `
+    <div class="card-header">
+      <span class="badge badge-${ep.method} badge-lg">${ep.method}</span>
+      <span class="endpoint-path">${ep.path}</span>
+      <span class="endpoint-desc">${ep.description}</span>
+    </div>
+    <div class="card-body" id="formBody"></div>
+  `;
+  main.appendChild(reqCard);
+
+  const formBody = reqCard.querySelector('#formBody');
+
+  // PATH PARAMS
+  if (ep.pathParams.length > 0) {
+    const sec = makeSection('Path Parameters', 'These replace <code>{variable}</code> placeholders in the URL.');
+    ep.pathParams.forEach(p =>
+      sec.appendChild(makeField(`path_${p.id || p.name}`, p.name, p.placeholder, true, p.hint)));
+    formBody.appendChild(sec);
+  }
+
+  // QUERY PARAMS
+  if (ep.queryParams.length > 0) {
+    const sec = makeSection('Query Parameters', 'Appended to the URL as <code>?key=value&amp;key2=value2</code>');
+    ep.queryParams.forEach(p => {
+      const row = makeField(`query_${p.name}`, p.name, p.placeholder, p.required, '');
+      if (p.defaultValue) row.querySelector('input').value = p.defaultValue;
+      sec.appendChild(row);
+    });
+    formBody.appendChild(sec);
+  }
+
+  // CUSTOM HEADERS
+  if (ep.headers.length > 0) {
+    const sec = makeSection('Request Headers', 'These are sent as HTTP headers alongside the request.');
+    ep.headers.forEach(h => {
+      const row = makeField(`header_${h.name}`, h.name, h.placeholder, false, '');
+      if (h.defaultValue) row.querySelector('input').value = h.defaultValue;
+      sec.appendChild(row);
+    });
+    formBody.appendChild(sec);
+  }
+
+  // REQUEST BODY
+  if (ep.body) {
+    const sec = document.createElement('div');
+    sec.className = 'form-section';
+    sec.innerHTML = `
+      <div class="form-section-title">Request Body <small style="text-transform:none;font-weight:400;color:#94a3b8;">(JSON)</small></div>
+      <div class="form-hint">${ep.body.description}</div>
+      <textarea class="body-input" id="requestBody" spellcheck="false">${ep.body.example}</textarea>
+    `;
+    formBody.appendChild(sec);
+  }
+
+  // SEND BUTTON
+  const btnWrap = document.createElement('div');
+  const btn = document.createElement('button');
+  btn.className = `send-btn btn-${ep.method}`;
+  btn.innerHTML = `&#9654;&nbsp; Send ${ep.method} Request`;
+  btn.addEventListener('click', sendRequest);
+  btnWrap.appendChild(btn);
+  formBody.appendChild(btnWrap);
+
+  // ── Response card (hidden until a request is sent) ──
+  const resCard = document.createElement('div');
+  resCard.className = 'card response-card';
+  resCard.id = 'responseCard';
+  resCard.innerHTML = `
+    <div class="card-header"><strong style="font-size:13.5px;">Response</strong></div>
+    <div class="response-meta" id="responseMeta"></div>
+    <div class="response-body-wrap"><pre class="response-body" id="responseBody"></pre></div>
+  `;
+  main.appendChild(resCard);
+}
+
+// ======================================================================
+// HELPERS — DOM builders
+// ======================================================================
+function makeSection(title, hint) {
+  const div = document.createElement('div');
+  div.className = 'form-section';
+  div.innerHTML = `<div class="form-section-title">${title}</div>
+                   <div class="form-hint">${hint}</div>`;
+  return div;
+}
+
+function makeField(id, name, placeholder, required, hint) {
+  const row = document.createElement('div');
+  row.className = 'form-row';
+  const star = required ? `<span class="required-star"> *</span>` : '';
+  row.innerHTML = `
+    <label for="${id}">${name}${star}</label>
+    <input type="text" id="${id}" placeholder="${placeholder}" autocomplete="off">
+    ${hint ? `<span class="param-hint">${hint}</span>` : ''}
+  `;
+  return row;
+}
+
+// ======================================================================
+// SEND REQUEST
+// ======================================================================
+async function sendRequest() {
+  const ep = currentEndpoint;
+  if (!ep) return;
+
+  const btn = document.querySelector('.send-btn');
+  btn.classList.add('loading');
+  btn.textContent = 'Sending\u2026';
+
+  // Build URL
+  let url = (document.getElementById('serverUrl').value || '').replace(/\/$/, '') + ep.path;
+
+  // Substitute path params
+  ep.pathParams.forEach(p => {
+    const val = document.getElementById(`path_${p.id || p.name}`)?.value?.trim() || '';
+    url = url.replace(`{${p.name}}`, encodeURIComponent(val));
+  });
+
+  // Append query params
+  const qs = [];
+  ep.queryParams.forEach(p => {
+    const val = document.getElementById(`query_${p.name}`)?.value?.trim();
+    if (val !== undefined && val !== '') qs.push(`${encodeURIComponent(p.name)}=${encodeURIComponent(val)}`);
+  });
+  if (qs.length) url += '?' + qs.join('&');
+
+  // Build headers
+  const headers = { 'Content-Type': 'application/json' };
+  ep.headers.forEach(h => {
+    const val = document.getElementById(`header_${h.name}`)?.value?.trim();
+    if (val) headers[h.name] = val;
+  });
+
+  const options = { method: ep.method, headers };
+  if (ep.body) {
+    options.body = document.getElementById('requestBody')?.value || '{}';
+  }
+
+  const resCard = document.getElementById('responseCard');
+  const resMeta = document.getElementById('responseMeta');
+  const resBody = document.getElementById('responseBody');
+  const start   = Date.now();
+
+  try {
+    const res     = await fetch(url, options);
+    const elapsed = Date.now() - start;
+    const sc      = res.status < 300 ? '2xx' : res.status < 400 ? '3xx' : res.status < 500 ? '4xx' : '5xx';
+    const text    = await res.text();
+
+    let display;
+    try {
+      display = syntaxHighlight(JSON.stringify(JSON.parse(text), null, 2));
+    } catch {
+      display = text ? escHtml(text) : '<em style="color:#475569">(empty body — HTTP 204 No Content)</em>';
+    }
+
+    resMeta.innerHTML = `
+      <span class="status-badge status-${sc}">${res.status} ${res.statusText}</span>
+      <span class="response-time">${elapsed} ms</span>
+      <span class="response-url">${url}</span>
+    `;
+    resBody.innerHTML = display;
+    resCard.classList.add('visible');
+
+  } catch (err) {
+    resMeta.innerHTML = `<span class="status-badge status-5xx">Network Error</span>`;
+    resBody.innerHTML = `<span style="color:#fca5a5">${escHtml(err.message)}\n\nMake sure the Spring Boot server is running at\n${document.getElementById('serverUrl').value}</span>`;
+    resCard.classList.add('visible');
+  }
+
+  btn.classList.remove('loading');
+  btn.innerHTML = `&#9654;&nbsp; Send ${ep.method} Request`;
+  resCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ======================================================================
+// JSON SYNTAX HIGHLIGHT
+// ======================================================================
+function syntaxHighlight(json) {
+  return json
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(
+      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+      match => {
+        let cls = 'json-number';
+        if (/^"/.test(match))       cls = /:$/.test(match) ? 'json-key' : 'json-string';
+        else if (/true|false/.test(match)) cls = 'json-bool';
+        else if (/null/.test(match)) cls = 'json-null';
+        return `<span class="${cls}">${match}</span>`;
+      }
+    );
+}
+
+function escHtml(t) {
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ======================================================================
+// INIT
+// ======================================================================
+buildSidebar();
+</script>
+</body>
+</html>

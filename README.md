@@ -1,5 +1,7 @@
 # Spring Boot API Tutorial
 
+**GitHub Repository:** https://github.com/dhtml/springboot_basics
+
 A beginner-friendly Spring Boot REST API project covering everything from basic HTTP concepts to a full CRUD API backed by a database.
 
 ---
@@ -17,9 +19,10 @@ A beginner-friendly Spring Boot REST API project covering everything from basic 
 
 Before you can run this project you need three things installed on your PC:
 
-### 1. Java Development Kit (JDK) 21
+### 1. Java Development Kit (JDK) 21 or later
 
-This project targets **Java 21** (the current Long-Term Support release).
+This project requires **Java 21 LTS** as the minimum. Any JDK version 21 or above will work
+(the tutor's machine runs **JDK 26**).
 
 1. Go to https://adoptium.net
 2. Select **Temurin 21 (LTS)** and download the installer for your OS
@@ -30,9 +33,9 @@ This project targets **Java 21** (the current Long-Term Support release).
 java -version
 ```
 
-You should see something like:
+You should see version **21 or higher**:
 ```
-openjdk version "21.0.x" ...
+openjdk version "21.0.x" ...   ← or any version ≥ 21
 ```
 
 ### 2. Apache Maven 3.9+
@@ -40,7 +43,7 @@ openjdk version "21.0.x" ...
 Maven downloads dependencies and builds the project.
 
 1. Go to https://maven.apache.org/download.cgi
-2. Download the **Binary zip archive** (e.g. `apache-maven-3.9.x-bin.zip`)
+2. Download the **Binary zip archive** (e.g. `apache-maven-3.9.14-bin.zip`)
 3. Extract it somewhere permanent, e.g. `C:\tools\maven`
 4. Add `C:\tools\maven\bin` to your system `PATH`
    - Search *"Edit the system environment variables"* → Environment Variables → Path → New
@@ -50,9 +53,9 @@ Maven downloads dependencies and builds the project.
 mvn -version
 ```
 
-You should see something like:
+You should see something like (the tutor's machine runs **3.9.14**):
 ```
-Apache Maven 3.9.x ...
+Apache Maven 3.9.14 ...
 Java version: 21 ...
 ```
 
@@ -72,8 +75,8 @@ Download from https://git-scm.com and run the installer with default settings.
 ## Getting the Project
 
 ```bash
-git clone <repository-url>
-cd springboot
+git clone https://github.com/dhtml/springboot_basics.git
+cd springboot_basics
 ```
 
 > If you received the project as a ZIP, just extract it and open a terminal in the extracted folder.
@@ -100,7 +103,21 @@ To stop the server press `Ctrl + C` in the terminal.
 
 ## Exploring the API
 
-### Swagger UI — interactive docs (recommended for beginners)
+### API Tester — built-in browser tool
+
+A custom test console is bundled with the project itself. Open it at:
+
+```
+http://localhost:8080/api-tester.html
+```
+
+- All endpoints are listed in a **sidebar**, grouped by category
+- Click any endpoint to see a **form** with the right input fields auto-generated
+- Fill in parameters (path variables, query params, request body) and click **Send**
+- The response is shown instantly with **colour-coded JSON**, the HTTP status code, and the response time
+- No Postman, no curl, no Swagger account — everything runs in the browser
+
+### Swagger UI — auto-generated API docs
 
 Open your browser and go to:
 
@@ -108,12 +125,13 @@ Open your browser and go to:
 http://localhost:8080/swagger-ui.html
 ```
 
-Every endpoint is listed here. You can fill in parameters and click **Execute** to send a real request — no extra tools needed.
+Every endpoint is listed here with full schema details. You can fill in parameters and click **Execute** to send a real request.
 
 ### Quick test links (open in browser)
 
 | URL | What it does |
 |-----|-------------|
+| http://localhost:8080/api-tester.html | **Built-in API Tester** — test all endpoints without any extra tools |
 | http://localhost:8080/api/basic/hello | Returns a plain "Hello" message |
 | http://localhost:8080/api/students | Returns all students as JSON |
 | http://localhost:8080/api/students/1 | Returns the student with ID 1 |
