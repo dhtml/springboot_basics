@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        SPRING BOOT PARENT
+        Inherits sensible defaults: plugin versions, dependency versions,
+        encoding settings, and much more. Always use this as your parent!
+    -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.4</version>
+        <relativePath/>
+    </parent>
+
+    <!-- Project Identity -->
+    <groupId>com.tutorial</groupId>
+    <artifactId>api-tutorial</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>Spring Boot API Tutorial</name>
+    <description>Spring Boot REST API examples - Basic to Advanced with Database</description>
+
+    <properties>
+        <!--
+            Java source/target compatibility level.
+            Set to 21 (LTS) for maximum library compatibility.
+            The JDK 26 on this machine will compile Java 21 bytecode perfectly.
+        -->
+        <java.version>21</java.version>
+    </properties>
+
+    <dependencies>
+
+        <!-- ============================================================
+             CORE WEB DEPENDENCY
+             Enables building REST APIs. Includes:
+               - Spring MVC (@RestController, @GetMapping, etc.)
+               - Embedded Tomcat server (no separate server install needed!)
+               - Jackson JSON library (auto-converts Java objects to/from JSON)
+             ============================================================ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- ============================================================
+             SPRING DATA JPA
+             Simplifies all database work using Java objects.
+             Includes Hibernate ORM - maps Java classes to database tables.
+             You write zero SQL for basic CRUD operations!
+             ============================================================ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- ============================================================
+             BEAN VALIDATION
+             Enables annotations like @NotBlank, @Email, @Size, @Pattern
+             to validate incoming request data automatically.
+             ============================================================ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- ============================================================
+             H2 IN-MEMORY DATABASE
+             A lightweight database that runs inside the JVM.
+             Perfect for learning - no installation, no configuration!
+             Data is stored in memory and resets when the app restarts.
+             Web console available at: http://localhost:8080/h2-console
+             ============================================================ -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ============================================================
+             SPRING BOOT DEVTOOLS
+             Developer convenience features:
+               - Auto-restart when code changes (hot reload)
+               - Better error messages during development
+             Only active during development, not in production builds.
+             ============================================================ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- ============================================================
+             SPRINGDOC OPENAPI (SWAGGER UI)
+             Auto-generates interactive API documentation!
+             Browse and test all endpoints at:
+               http://localhost:8080/swagger-ui.html
+             This is the industry standard way to document REST APIs.
+             ============================================================ -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+
+        <!-- ============================================================
+             SPRING BOOT TEST
+             Testing support with JUnit 5 and Mockito included.
+             ============================================================ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--
+                Spring Boot Maven Plugin
+                Allows running the app with: mvn spring-boot:run
+                Also packages the app as a standalone executable JAR.
+            -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!--
+                Maven Compiler Plugin
+                Explicitly set Java release version to 17.
+                Using <release> is preferred over <source>+<target>.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <release>21</release>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
