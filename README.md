@@ -102,15 +102,33 @@ To stop the server press `Ctrl + C` in the terminal.
 
 ---
 
+## Live Demo
+
+The API is deployed and publicly accessible at:
+
+```
+https://springboot.africoders.net
+```
+
+| Tool | Live URL |
+|------|----------|
+| **API Tester** | https://springboot.africoders.net/api-tester.html |
+| **Swagger UI** | https://springboot.africoders.net/swagger-ui.html |
+| **H2 Console** | https://springboot.africoders.net/h2-console |
+
+---
+
 ## Exploring the API
 
 ### API Tester — built-in browser tool
 
-A custom test console is bundled with the project itself. Open it at:
+A custom test console is bundled with the project itself. Open it locally at:
 
 ```
 http://localhost:8080/api-tester.html
 ```
+
+Or try the live version at **https://springboot.africoders.net/api-tester.html**
 
 <img width="1366" height="651" alt="image" src="https://github.com/user-attachments/assets/efff2328-3126-4214-b2cc-57ede43165b7" />
 
@@ -133,6 +151,8 @@ Every endpoint is listed here with full schema details. You can fill in paramete
 
 ### Quick test links (open in browser)
 
+**Local:**
+
 | URL | What it does |
 |-----|-------------|
 | http://localhost:8080/api-tester.html | **Built-in API Tester** — test all endpoints without any extra tools |
@@ -142,6 +162,18 @@ Every endpoint is listed here with full schema details. You can fill in paramete
 | http://localhost:8080/api/students/search?name=alice | Searches students by name |
 | http://localhost:8080/api/students/page?page=0&size=3 | Returns the first 3 students (pagination) |
 | http://localhost:8080/api/students/stats | Returns aggregated statistics |
+
+**Live (no setup needed):**
+
+| URL | What it does |
+|-----|-------------|
+| https://springboot.africoders.net/api-tester.html | **Built-in API Tester** — live version |
+| https://springboot.africoders.net/api/basic/hello | Returns a plain "Hello" message |
+| https://springboot.africoders.net/api/students | Returns all students as JSON |
+| https://springboot.africoders.net/api/students/1 | Returns the student with ID 1 |
+| https://springboot.africoders.net/api/students/search?name=alice | Searches students by name |
+| https://springboot.africoders.net/api/students/page?page=0&size=3 | Returns the first 3 students (pagination) |
+| https://springboot.africoders.net/api/students/stats | Returns aggregated statistics |
 
 ### H2 Database Console — browse the database in your browser
 

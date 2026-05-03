@@ -807,6 +807,15 @@ function escHtml(t) {
 // ======================================================================
 // INIT
 // ======================================================================
+
+// Auto-detect server URL: use current origin when not running on localhost
+(function () {
+  const loc = window.location;
+  if (loc.hostname !== 'localhost' && loc.hostname !== '127.0.0.1') {
+    document.getElementById('serverUrl').value = loc.origin;
+  }
+})();
+
 buildSidebar();
 </script>
 </body>

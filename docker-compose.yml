@@ -1,0 +1,8 @@
+services:
+  springboot:
+    build: .
+    image: springboot-api-tutorial
+    container_name: springboot-api-tutorial
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8085:8080"
