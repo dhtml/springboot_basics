@@ -6,6 +6,7 @@ A beginner-friendly Spring Boot REST API project covering everything from basic 
 
 ---
 
+
 ## What You'll Learn
 
 | Level | Controller | Topics |
@@ -110,6 +111,9 @@ A custom test console is bundled with the project itself. Open it at:
 ```
 http://localhost:8080/api-tester.html
 ```
+
+<img width="1366" height="651" alt="image" src="https://github.com/user-attachments/assets/efff2328-3126-4214-b2cc-57ede43165b7" />
+
 
 - All endpoints are listed in a **sidebar**, grouped by category
 - Click any endpoint to see a **form** with the right input fields auto-generated
